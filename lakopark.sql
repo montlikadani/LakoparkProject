@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
--- Gép: 127.0.0.1
--- Létrehozás ideje: 2023. Jan 23. 10:23
--- Kiszolgáló verziója: 10.4.22-MariaDB
--- PHP verzió: 8.1.2
+-- Host: 127.0.0.1
+-- Generation Time: Jan 23, 2023 at 01:20 PM
+-- Server version: 10.4.27-MariaDB
+-- PHP Version: 8.2.0
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,25 +18,45 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Adatbázis: `lakopark`
+-- Database: `lakopark`
 --
+CREATE DATABASE IF NOT EXISTS `lakopark` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci;
+USE `lakopark`;
 
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `hazak`
+-- Table structure for table `datas`
 --
 
+DROP TABLE IF EXISTS `datas`;
+CREATE TABLE `datas` (
+  `id` int(11) NOT NULL,
+  `nev` varchar(300) NOT NULL,
+  `utcakSzama` int(11) NOT NULL,
+  `maxHazSzam` int(11) NOT NULL,
+  `utca` int(11) NOT NULL,
+  `hazszam` int(11) NOT NULL,
+  `emelet` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hazak`
+--
+
+DROP TABLE IF EXISTS `hazak`;
 CREATE TABLE `hazak` (
   `id` int(11) NOT NULL,
   `lakopark` varchar(300) NOT NULL,
   `utca` int(11) NOT NULL,
   `hazszam` int(11) NOT NULL,
   `emelet` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- A tábla adatainak kiíratása `hazak`
+-- Dumping data for table `hazak`
 --
 
 INSERT INTO `hazak` (`id`, `lakopark`, `utca`, `hazszam`, `emelet`) VALUES
@@ -93,18 +113,19 @@ INSERT INTO `hazak` (`id`, `lakopark`, `utca`, `hazszam`, `emelet`) VALUES
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `lakopark`
+-- Table structure for table `lakopark`
 --
 
+DROP TABLE IF EXISTS `lakopark`;
 CREATE TABLE `lakopark` (
   `id` int(11) NOT NULL,
   `nev` varchar(300) NOT NULL,
   `utcakSzama` int(11) NOT NULL,
   `hazakSzama` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- A tábla adatainak kiíratása `lakopark`
+-- Dumping data for table `lakopark`
 --
 
 INSERT INTO `lakopark` (`id`, `nev`, `utcakSzama`, `hazakSzama`) VALUES
@@ -115,9 +136,10 @@ INSERT INTO `lakopark` (`id`, `nev`, `utcakSzama`, `hazakSzama`) VALUES
 -- --------------------------------------------------------
 
 --
--- Tábla szerkezet ehhez a táblához `statistics`
+-- Table structure for table `statistics`
 --
 
+DROP TABLE IF EXISTS `statistics`;
 CREATE TABLE `statistics` (
   `id` int(11) NOT NULL,
   `lakopark` varchar(300) NOT NULL,
@@ -125,48 +147,60 @@ CREATE TABLE `statistics` (
   `beepitett` tinyint(1) NOT NULL,
   `beepitettseg` double NOT NULL DEFAULT 0,
   `bevetel` double NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Indexek a kiírt táblákhoz
+-- Indexes for dumped tables
 --
 
 --
--- A tábla indexei `hazak`
+-- Indexes for table `datas`
+--
+ALTER TABLE `datas`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `hazak`
 --
 ALTER TABLE `hazak`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `lakopark`
+-- Indexes for table `lakopark`
 --
 ALTER TABLE `lakopark`
   ADD PRIMARY KEY (`id`);
 
 --
--- A tábla indexei `statistics`
+-- Indexes for table `statistics`
 --
 ALTER TABLE `statistics`
   ADD PRIMARY KEY (`id`);
 
 --
--- A kiírt táblák AUTO_INCREMENT értéke
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT a táblához `hazak`
+-- AUTO_INCREMENT for table `datas`
+--
+ALTER TABLE `datas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `hazak`
 --
 ALTER TABLE `hazak`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
--- AUTO_INCREMENT a táblához `lakopark`
+-- AUTO_INCREMENT for table `lakopark`
 --
 ALTER TABLE `lakopark`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT a táblához `statistics`
+-- AUTO_INCREMENT for table `statistics`
 --
 ALTER TABLE `statistics`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;

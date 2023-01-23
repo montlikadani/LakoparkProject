@@ -86,9 +86,11 @@ namespace Lakopark {
             UpdatePanelItems();
         }
 
-        private void SaveButton_Click(object sender, EventArgs e) {
-            if (Living.SaveData()) {
+        private async void SaveButton_Click(object sender, EventArgs e) {
+            if (await Living.SaveData()) {
                 MessageBox.Show("Sikeres mentés", "Mentés", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            } else {
+                MessageBox.Show("Sikertelen mentés", "Mentés", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 

@@ -1,8 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Windows.Forms;
+using System.Threading.Tasks;
 
 namespace Lakopark {
     public sealed class HappyLiving {
@@ -31,36 +29,24 @@ namespace Lakopark {
             }
         }
 
-        public bool SaveData() {
-            try {
-                string name = Form1.GetResourceFileByName("lakoparkok.txt");
+        public async Task<bool> SaveData() {
+            await Database.PerformSqlCommand("truncate table `datas`;");
 
-                File.Copy(name, $"lakoparkok_{DateTime.Now:yyyyMMdd_hhmm}.txt");
+            foreach (Lakopark lakopark in lakoparkok) {
+                int secondLength = lakopark.hazak.GetLength(1);
+                int firstLength = lakopark.hazak.GetLength(0);
 
-                using (StreamWriter writer = new StreamWriter(name)) {
-                    foreach (Lakopark lakopark in lakoparkok) {
-                        writer.WriteLine(lakopark.nev);
-                        writer.WriteLine($"{lakopark.utcakSzama};{lakopark.maxHazSzam}");
-
-                        int secondLength = lakopark.hazak.GetLength(1);
-                        int firstLength = lakopark.hazak.GetLength(0);
-
-                        for (int i = 0; i < firstLength; i++) {
-                            for (int j = 0; j < secondLength; j++) {
-                                writer.WriteLine(string.Join(";", i, j, lakopark.hazak[i, j]));
-                            }
+                for (int i = 0; i < firstLength; i++) {
+                    for (int j = 0; j < secondLength; j++) {
+                        if (!(await Database.PerformSqlCommand("insert into `datas` (nev, utcakSzama, maxHazSzam, utca, hazszam, emelet) values (@0, @1, @2, @3, @4, @5);",
+                                lakopark.nev, lakopark.utcakSzama, lakopark.maxHazSzam, i + 1, j + 1, lakopark.hazak[i, j] + 1))) {
+                            return false;
                         }
-
-                        writer.WriteLine();
                     }
                 }
-
-                return true;
-            } catch (Exception ex) {
-                MessageBox.Show($"Hiba lépett fel a fájl mentésekor: {ex.Message}\n{ex.StackTrace}", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-            return false;
+            return true;
         }
     }
 }
