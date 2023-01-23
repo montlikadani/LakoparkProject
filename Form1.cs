@@ -16,7 +16,7 @@ namespace Lakopark {
         public Form1() {
             InitializeComponent();
 
-            Living = new HappyLiving(GetResourceFileByName("lakoparkok.txt"));
+            Living = new HappyLiving();
 
             houseLevels.Add(Properties.Resources.kereszt);
             houseLevels.Add(Properties.Resources.Haz1);
@@ -92,32 +92,11 @@ namespace Lakopark {
             }
         }
 
-        private void ButtonStatistics_Click(object sender, EventArgs e) {
-            try {
-                string name = $"statisztika_{DateTime.Now:yyyyMMdd}.txt";
+        private async void ButtonStatistics_Click(object sender, EventArgs e) {
+            Lakopark park = Living.lakoparkok.OrderBy(s => s.GetRatioOfBuiltHouses()).Last();
 
-                using (StreamWriter writer = new StreamWriter(name)) {
-                    writer.WriteLine("Statisztika\n");
-
-                    foreach (Lakopark lakopark in Living.lakoparkok) {
-                        int streetNumber = lakopark.StreetFullyBuiltWithHouses();
-
-                        if (streetNumber != -1) {
-                            writer.WriteLine($"A {lakopark.nev} lakópark {streetNumber}. utcája teljesen beépített\n");
-                            break;
-                        }
-                    }
-
-                    Lakopark park = Living.lakoparkok.OrderBy(s => s.GetRatioOfBuiltHouses()).Last();
-
-                    writer.WriteLine($"A legjobban beépített a {park.nev} lakópark {park.RatioOfBuiltHouses * 100}% beépítettséggel.");
-                    writer.WriteLine($"\nA HappyLiving cégnek összes bevétele {Living.lakoparkok.Sum(a => a.CountIncome())} Ft");
-                }
-
-                System.Diagnostics.Process.Start("notepad.exe", $"{Directory.GetCurrentDirectory()}\\{name}");
-            } catch (Exception ex) {
-                MessageBox.Show($"Hiba lépett fel a statisztikai adatok mentésekor: {ex.Message}\n{ex.StackTrace}", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            await Database.PerformSqlCommand("insert into `statistics` (`lakopark`, `datum`, `beepitett`, `beepitettseg`, `bevetel`) values (@0, @1, @2, @3, @4);", park.nev,
+                DateTime.Now.ToString("yyyyMMdd"), park.StreetFullyBuiltWithHouses() != -1, park.RatioOfBuiltHouses * 100, Living.lakoparkok.Sum(a => a.CountIncome()));
         }
     }
 }

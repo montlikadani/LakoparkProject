@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
@@ -8,28 +9,25 @@ namespace Lakopark {
 
         public List<Lakopark> lakoparkok { get; } = new List<Lakopark>();
 
-        public HappyLiving(string filenev) {
-            try {
-                using (StreamReader reader = File.OpenText(filenev)) {
-                    while (!reader.EndOfStream) {
-                        string name = reader.ReadLine();
-                        string[] split = reader.ReadLine().Split(';');
-                        int utcakSzama = int.Parse(split[0]);
-                        int hazakSzama = int.Parse(split[1]);
-                        int[,] hazak = new int[utcakSzama, hazakSzama];
+        public HappyLiving() {
+            List<Lakopark> temp = new List<Lakopark>();
 
-                        string line;
-                        while (!string.IsNullOrEmpty(line = reader.ReadLine())) {
-                            split = line.Split(';');
-                            hazak[int.Parse(split[0]) - 1, int.Parse(split[1]) - 1] = int.Parse(split[2]);
-                        }
+            using (MySqlDataReader reader = Database.PerformSqlQuery("select * from lakopark;")) {
+                while (reader.Read()) {
+                    temp.Add(new Lakopark(reader.GetString("nev"), reader.GetInt32("utcakSzama"), reader.GetInt32("hazakSzama"), null));
+                }
+            }
 
-                        lakoparkok.Add(new Lakopark(name, utcakSzama, hazakSzama, hazak));
+            foreach (Lakopark lakopark in temp) {
+                int[,] hazak = new int[lakopark.utcakSzama, lakopark.maxHazSzam];
+
+                using (MySqlDataReader reader2 = Database.PerformSqlQuery("select * from hazak where lakopark = @0;", lakopark.nev)) {
+                    while (reader2.Read()) {
+                        hazak[reader2.GetInt32("utca") - 1, reader2.GetInt32("hazszam") - 1] = reader2.GetInt32("emelet");
                     }
                 }
-            } catch (Exception ex) {
-                MessageBox.Show($"Hiba lépett fel a fájl betöltésekor: {ex.Message}\n{ex.StackTrace}", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Environment.Exit(0);
+
+                lakoparkok.Add(new Lakopark(lakopark.nev, lakopark.utcakSzama, lakopark.maxHazSzam, hazak));
             }
         }
 
